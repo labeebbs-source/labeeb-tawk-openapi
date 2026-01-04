@@ -1,0 +1,98 @@
+openapi: 3.0.3
+info:
+  title: Labeeb Lead Sheet API
+  version: "1.0.0"
+  description: Token-protected API for creating and looking up leads in Google Sheets.
+
+servers:
+  - url: https://script.google.com/macros/s/AKfycb0QKrAYg5rThU4Ut_4cOGDRRb0GUYjcI6gnuxKmvcbQnnwJlelXrChtJDsgC0j2phwQ
+
+paths:
+  /exec:
+    get:
+      operationId: pingOrLookup
+      summary: Ping the API or lookup leads by email/phone/name.
+      parameters:
+        - in: query
+          name: token
+          required: true
+          schema:
+            type: string
+          description: API token required for all calls.
+        - in: query
+          name: action
+          required: true
+          schema:
+            type: string
+            enum: [ping, lookup]
+        - in: query
+          name: field
+          required: false
+          schema:
+            type: string
+            enum: [email, phone, name]
+          description: Required when action=lookup.
+        - in: query
+          name: value
+          required: false
+          schema:
+            type: string
+          description: Required when action=lookup.
+      responses:
+        "200":
+          description: Successful response (or structured error in JSON).
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+
+    post:
+      operationId: addLead
+      summary: Create a new lead in the LeadsInbox Google Sheet.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+                  description: API token required for all calls.
+                action:
+                  type: string
+                  description: Optional. Defaults to addLead.
+                  example: addLead
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                service:
+                  type: string
+                message:
+                  type: string
+                source:
+                  type: string
+                  example: Tawk.to
+                lead:
+                  type: object
+                  description: Optional wrapper. If provided, lead object is used instead of top-level fields.
+                  properties:
+                    name: { type: string }
+                    email: { type: string }
+                    phone: { type: string }
+                    service: { type: string }
+                    message: { type: string }
+                    source: { type: string }
+      responses:
+        "200":
+          description: Successful response (or structured error in JSON).
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
